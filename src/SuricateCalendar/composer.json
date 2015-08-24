@@ -1,0 +1,22 @@
+{
+    "name": "suricate-php/calendar",
+    "description": "Suricate Caldendar",
+    "keywords": ["calendar", "suricate"],
+    "authors": [
+        {
+            "name": "Mathieu LESNIAK",
+            "email": "mathieu@lesniak.fr"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "SuricateCalendar": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">= 5.4.0",
+        "suricate-php/framework": "*"
+    }
+
+}
