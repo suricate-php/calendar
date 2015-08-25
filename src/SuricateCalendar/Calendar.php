@@ -2,6 +2,12 @@
 
 namespace SuricateCalendar;
 
+/**
+ * @property string locale
+ * @property int displayMode
+ * @property boolean showDays
+ * @property boolean showMonth
+ */
 class Calendar
 {
     const DAY_MODE          = 'day';
@@ -103,10 +109,14 @@ class Calendar
             $ts = strtotime($i . ' days', $firstDayOfMonth);
             $dayIdentifier = date('Ymd', $ts);
             $item = new CalendarItem(date('d', $ts));
+            $item->isDay = true;
+            if ($dayIdentifier == $this->currentDate) {
+                $item->isActive = true;
+            }
             if ($i < 0) {
-                $item->past = true;
+                $item->isPast = true;
             } elseif ($i >= $nbDaysInMonth) {
-                $item->future = true;
+                $item->isFuture = true;
             }
 
             $this->container[$dayIdentifier] = $item;
@@ -188,25 +198,8 @@ class Calendar
             if ($i % 7 == 0) {
                 $output .= '<tr>';
             }
-            $classes = ['day'];
 
-            if ($day->future) {
-                $classes[] = 'future';
-            } elseif ($day->past) {
-                $classes[] = 'past';
-            }
-            if (count($day->items)) {
-                $classes[] = 'has-item';
-            }
-
-            if ($offset == $this->currentDate) {
-                $classes[] = 'active';
-            }
-            $cellClass = ' class="' . implode(' ', $classes) . '"';
-           
-            $output .= '<td' . $cellClass . '>';
-            $output .= '    ' . $day->number;
-            $output .= '</td>';
+            $output .= $day->render();
             
             if ($i % 7 == 6) {
                 $output .= '</tr>';
