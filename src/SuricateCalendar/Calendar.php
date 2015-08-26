@@ -3,10 +3,19 @@
 namespace SuricateCalendar;
 
 /**
- * @property string locale
+ * @property string locale locale used by calendar
  * @property int displayMode
  * @property boolean showDays
  * @property boolean showMonth
+ * @property boolean showItems
+ * @property boolean showItemsNb
+ * @property boolean showFullDayName
+ * @property string weekStartOn 
+ * @property string externalStylesheet
+ * @property string internalStylesheet
+ * @property string styleMonthBgColor
+ * @property string styleMonthColor
+ * @property string styleMonthAlign
  */
 class Calendar
 {
@@ -35,16 +44,52 @@ class Calendar
             // Month params
             'showDays'      => true,
             'showMonth'     => true,
-
+            'showItems'     => false,
+            'showItemsNb'   => false,
 
             // week params
 
             // day params
 
             // merged params
-            'showFullDayName' => true,
+            'showFullDayName'       => true,
+            'weekStartOn'           => 'sunday',
+
+            // styling
+            'externalStylesheet'    => null,
+            'internalStylesheet'    => true,
+            'styleBorderColor'      => '#000',
             
-            'weekStartOn'   => 'sunday',
+            'styleMonthBgColor'     => '#C0C0C0',
+            'styleMonthColor'       => '#FFF',
+            'styleMonthAlign'       => 'center',
+
+            'styleDaysBgColor'     => '#e7e7e7',
+            'styleDaysColor'       => '#777',
+            'styleDaysAlign'       => 'center',
+
+            'styleCellBgColor'      => '#FFF',
+            'styleCellAlign'        => 'center',
+            'styleCellColor'        => '#777',
+            'styleCellWidth'        => 'auto',
+            'styleCellHeight'       => 'auto',
+
+            'styleCellActiveBgColor'=> '#3a87ad',
+            'styleCellActiveAlign'  => 'center',
+            'styleCellActiveColor'  => '#FFF',
+
+            'styleTodayBgColor'     => '#E0E0E0',
+            'styleTodayAlign'       => 'center',
+            'styleTodayColor'       => '#000',
+
+            'stylePastBgColor'     => '#FFF',
+            'stylePastAlign'       => 'center',
+            'stylePastColor'       => '#CCC',
+
+            'styleFutureBgColor'     => '#FFF',
+            'styleFutureAlign'       => 'center',
+            'styleFutureColor'       => '#CCC',
+
             ];
 
         if ($date === null) {
@@ -119,8 +164,25 @@ class Calendar
                 $item->isFuture = true;
             }
 
+            if ($this->showItems) {
+                $item->showItems = true;
+            } elseif ($this->showItemsNb) {
+                $item->showItemsNb = true;
+            }
+
             $this->container[$dayIdentifier] = $item;
         }
+    }
+
+    public function setContent($items)
+    {
+        foreach ($items as $dayIdentifier => $item) {
+            if (isset($this->container[$dayIdentifier])) {
+                $this->container[$dayIdentifier]->items = $item;
+            }
+        }
+
+        return $this;
     }
 
     public function render()
@@ -132,8 +194,8 @@ class Calendar
         if (!setlocale(LC_TIME, $this->locale)) {
             throw new \InvalidArgumentException("Missing locale on system : " . $this->locale);
         }
-
-        $output = '<table border="1" class="calendar" id="calendar-' . $this->id . '">';
+        $output  = $this->renderStylesheet();
+        $output .= '<table border="1" class="calendar" id="calendar-' . $this->id . '">';
 
         switch ($this->displayMode) {
             case self::DAY_MODE:
@@ -177,7 +239,7 @@ class Calendar
 
         if ($this->showMonth) {
             $output .= '<tr>';
-            $output .= '    <td colspan="7">';
+            $output .= '    <td colspan="7" class="month">';
             $output .=          strftime('%B', $this->currentTimestamp);
             $output .= '    </td>';
             $output .= '</tr>';
@@ -186,7 +248,7 @@ class Calendar
             $baseTs = strtotime('next ' . $this->weekStartOn);
             $output .= '<tr>';
             for ($i = 0; $i < 7; $i++) {
-                $output .= '<td>';
+                $output .= '<td class="days">';
                 $output .=     strftime($strDayName, $baseTs + 3600 * 24 * $i);
                 $output .= '</td>';
             }
@@ -208,6 +270,67 @@ class Calendar
         }
 
         return $output;
+    }
+
+    private function renderStylesheet()
+    {
+        if ($this->externalStylesheet !== null) {
+            $output = '<link rel="stylesheet" type="text/css" href="' . $this->externalStylesheet . '" />';
+        } elseif ($this->internalStylesheet) {
+            $calendarIdentifier = '#calendar-' . $this->calendarId;
+
+            $output = '<style type="text/css">';
+            $output .= <<<EOD
+            $calendarIdentifier {
+                border: solid 1px {$this->styleBorderColor};
+            }
+            $calendarIdentifier td.month {
+                text-align: {$this->styleMonthAlign};
+                color: {$this->styleMonthColor};
+                background-color: {$this->styleMonthBgColor};
+            }
+
+            $calendarIdentifier td.days {
+                text-align: {$this->styleDaysAlign};
+                color: {$this->styleDaysColor};
+                background-color: {$this->styleDaysBgColor};
+            }
+
+            $calendarIdentifier td.day {
+                background-color: {$this->styleCellBgColor};
+                text-align: {$this->styleCellAlign};
+                width: {$this->styleCellWidth};
+                height: {$this->styleCellHeight};
+            }
+
+            $calendarIdentifier td.day.past {
+                background-color: {$this->stylePastBgColor};
+                color: {$this->stylePastColor};
+                text-align: {$this->stylePastAlign};
+            }
+
+            $calendarIdentifier td.day.today {
+                background-color: {$this->styleTodayBgColor};
+                color: {$this->styleTodayColor};
+                text-align: {$this->styleTodayAlign};
+            }
+
+            $calendarIdentifier td.day.has-items {
+                background-color: {$this->styleCellActiveBgColor};
+                color: {$this->styleCellActiveColor};
+                text-align: {$this->styleCellActiveAlign};
+            }
+
+            $calendarIdentifier td.day.future {
+                background-color: {$this->styleFutureBgColor};
+                color: {$this->styleFutureColor};
+                text-align: {$this->styleFutureAlign};
+            }
+EOD;
+            $output .= '</style>';
+
+            return $output;
+        }
     }
 
 
