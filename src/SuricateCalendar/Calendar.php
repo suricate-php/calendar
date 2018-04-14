@@ -1,5 +1,4 @@
 <?php
-
 namespace SuricateCalendar;
 
 /**
@@ -10,12 +9,33 @@ namespace SuricateCalendar;
  * @property boolean showItems
  * @property boolean showItemsNb
  * @property boolean showFullDayName
- * @property string weekStartOn 
+ * @property string weekStartOn
  * @property string externalStylesheet
  * @property string internalStylesheet
+ * @property string styleBorderColor
  * @property string styleMonthBgColor
  * @property string styleMonthColor
  * @property string styleMonthAlign
+ * @property string styleDaysBgColor
+ * @property string styleDaysColor
+ * @property string styleDaysAlign
+ * @property string styleCellBgColor
+ * @property string styleCellAlign
+ * @property string styleCellColor
+ * @property string styleCellWidth
+ * @property string styleCellHeight
+ * @property string styleCellActiveBgColor
+ * @property string styleCellActiveAlign
+ * @property string styleCellActiveColor
+ * @property string styleTodayBgColor
+ * @property string styleTodayAlign
+ * @property string styleTodayColor
+ * @property string stylePastBgColor
+ * @property string stylePastAlign
+ * @property string stylePastColor
+ * @property string styleFutureBgColor
+ * @property string styleFutureAlign
+ * @property string styleFutureColor
  */
 class Calendar
 {
@@ -138,7 +158,7 @@ class Calendar
 
     private function initMonthContainer()
     {
-        $firstDayOfMonth = mktime(0,0,0, $this->month, 1, $this->year);
+        $firstDayOfMonth = mktime(0, 0, 0, $this->month, 1, $this->year);
         $firstDayOffset  = date('w', $firstDayOfMonth);
 
         $nbDaysInMonth   = date('t', $this->currentTimestamp);
@@ -192,10 +212,10 @@ class Calendar
         $oldLocale = setlocale(LC_TIME, 0);
         
         if (!setlocale(LC_TIME, $this->locale)) {
-            throw new \InvalidArgumentException("Missing locale on system : " . $this->locale);
+            throw new \InvalidArgumentException('Missing locale on system : ' . $this->locale);
         }
         $output  = $this->renderStylesheet();
-        $output .= '<table border="1" class="calendar" id="calendar-' . $this->id . '">';
+        $output .= '<table border="1" class="calendar" id="calendar-' . $this->calendarId . '">';
 
         switch ($this->displayMode) {
             case self::DAY_MODE:
@@ -253,7 +273,6 @@ class Calendar
                 $output .= '</td>';
             }
             $output .= '</tr>';
-
         }
         $i = 0;
         foreach ($this->container as $offset => $day) {
@@ -332,7 +351,4 @@ EOD;
             return $output;
         }
     }
-
-
-
 }

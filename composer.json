@@ -13,10 +13,10 @@
             "SuricateCalendar": "src/"
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
         "php": ">= 5.4.0",
-        "suricate-php/framework": "*"
+        "suricate-php/framework": ">=0.1"
     }
 
 }
